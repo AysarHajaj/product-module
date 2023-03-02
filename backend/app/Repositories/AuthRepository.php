@@ -43,4 +43,13 @@ class AuthRepository
             throw $th;
         }
     }
+
+    public function revokeAuthUserToken()
+    {
+        try {
+            Auth::user()->token()->revoke();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }
