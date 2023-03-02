@@ -18,6 +18,10 @@ class AuthController extends Controller
 
     public function register(RegistrationRequest $request)
     {
+        $input = $request->only(['name', 'email', 'password']);
+        $response = $this->authService->register($input);
+
+        return $response;
     }
 
     public function login(LoginRequest $request)
