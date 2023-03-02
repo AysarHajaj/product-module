@@ -11,8 +11,10 @@ class AuthService extends Service
     private $authRepository;
     private $authFormatter;
 
-    public function __construct(AuthRepository $authRepository, AuthFormatter $authFormatter)
-    {
+    public function __construct(
+        AuthRepository $authRepository,
+        AuthFormatter $authFormatter
+    ) {
         $this->authRepository = $authRepository;
         $this->authFormatter = $authFormatter;
     }
@@ -107,5 +109,12 @@ class AuthService extends Service
                 500
             );
         }
+    }
+
+    public function unauthenticated()
+    {
+        $result = $this->authFormatter->errorResponseData('unauthenticated');
+
+        return $this->getResponse($result, 403);
     }
 }
