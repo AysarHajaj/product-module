@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Formatters\AuthFormatter;
 use App\Repositories\AuthRepository;
+use Illuminate\Support\Facades\DB;
 
 class AuthService extends Service
 {
@@ -18,6 +19,7 @@ class AuthService extends Service
 
     public function register($input)
     {
+        DB::beginTransaction();
         try {
             $input['password'] = bcrypt($input['password']);
             $user = $this->authRepository->create($input);
@@ -36,8 +38,11 @@ class AuthService extends Service
                 $token
             );
 
+            DB::commit();
             return $this->getResponse($result, 200);
         } catch (\Throwable $th) {
+
+            DB::rollBack();
             return $this->getResponse(
                 $this->authFormatter->errorResponseData($th->getMessage()),
                 500
@@ -47,6 +52,7 @@ class AuthService extends Service
 
     public function login($input)
     {
+        DB::beginTransaction();
         try {
             $user = $this->authRepository->attempt($input);
             if ($user) {
@@ -65,9 +71,11 @@ class AuthService extends Service
                     $token
                 );
 
+                DB::commit();
                 return $this->getResponse($result, 200);
             }
 
+            DB::rollBack();
             return $this->getResponse(
                 $this->authFormatter->errorResponseData(
                     'Incorrect email or password'
@@ -75,6 +83,7 @@ class AuthService extends Service
                 403
             );
         } catch (\Throwable $th) {
+            DB::rollBack();
             return $this->getResponse(
                 $this->authFormatter->errorResponseData($th->getMessage()),
                 500
