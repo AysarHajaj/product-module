@@ -44,4 +44,41 @@ class AuthService extends Service
             );
         }
     }
+
+    public function login($input)
+    {
+        try {
+            $user = $this->authRepository->attempt($input);
+            if ($user) {
+                $token = $this->authRepository->createToken($user);
+                $user = $this->authFormatter->formatUser($user);
+
+                $result = $this->authFormatter->prepareSuccessResponse();
+                $result = $this->authFormatter->addDataToResponse(
+                    $result,
+                    'user',
+                    $user
+                );
+                $result = $this->authFormatter->addDataToResponse(
+                    $result,
+                    'token',
+                    $token
+                );
+
+                return $this->getResponse($result, 200);
+            }
+
+            return $this->getResponse(
+                $this->authFormatter->errorResponseData(
+                    'Incorrect email or password'
+                ),
+                403
+            );
+        } catch (\Throwable $th) {
+            return $this->getResponse(
+                $this->authFormatter->errorResponseData($th->getMessage()),
+                500
+            );
+        }
+    }
 }
