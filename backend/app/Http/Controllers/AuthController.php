@@ -34,6 +34,9 @@ class AuthController extends Controller
 
     public function logout()
     {
+        $response = $this->authService->logout();
+
+        return $response;
     }
 
     public function unauthenticated()
