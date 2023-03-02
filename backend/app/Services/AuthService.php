@@ -90,4 +90,22 @@ class AuthService extends Service
             );
         }
     }
+
+    public function logout()
+    {
+        DB::beginTransaction();
+        try {
+            $this->authRepository->revokeAuthUserToken();
+            $result = $this->authFormatter->successResponseData(true);
+
+            DB::commit();
+            return $this->getResponse($result, 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->getResponse(
+                $this->authFormatter->errorResponseData($th->getMessage()),
+                500
+            );
+        }
+    }
 }
