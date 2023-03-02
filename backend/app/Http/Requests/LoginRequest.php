@@ -2,21 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\ValidationException;
-
-class LoginRequest extends FormRequest
+class LoginRequest extends Request
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     public function messages()
     {
         return [
@@ -25,8 +12,6 @@ class LoginRequest extends FormRequest
             'password.required' => 'You need to enter a password',
         ];
     }
-
-
 
     /**
      * Get the validation rules that apply to the request.
@@ -39,14 +24,5 @@ class LoginRequest extends FormRequest
             "email" => "required|email",
             "password" => "required",
         ];
-    }
-
-    protected function failedValidation(Validator $validator)
-    {
-        $response = new JsonResponse([
-            'error' => $validator->errors()->first(),
-        ], 400);
-
-        throw new ValidationException($validator, $response);
     }
 }
