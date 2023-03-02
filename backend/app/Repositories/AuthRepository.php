@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AuthRepository
@@ -29,6 +30,24 @@ class AuthRepository
 
             DB::commit();
             return $token;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function attempt($input)
+    {
+        DB::beginTransaction();
+        try {
+            if (Auth::attempt($input)) {
+                $user = Auth::user();
+
+                DB::commit();
+                return $user;
+            }
+
+            return null;
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
