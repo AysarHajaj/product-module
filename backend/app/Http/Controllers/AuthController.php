@@ -41,5 +41,8 @@ class AuthController extends Controller
 
     public function unauthenticated()
     {
+        $response = $this->authService->unauthenticated();
+
+        return $response;
     }
 }
