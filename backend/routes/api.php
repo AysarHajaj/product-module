@@ -16,6 +16,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::get(
+    'unauthenticated',
+    [AuthController::class, 'unauthenticated']
+)->name('unauthenticated');
+
 Route::middleware('auth:api')->group(function () {
     Route::get(
         'logout',
