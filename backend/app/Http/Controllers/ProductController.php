@@ -45,4 +45,20 @@ class ProductController extends Controller
     {
         //
     }
+
+    /**
+     * Activate the specified resource in storage.
+     */
+    public function activate(string $id)
+    {
+        //
+    }
+
+    /**
+     * Deactivate the specified resource in storage.
+     */
+    public function deactivate(string $id)
+    {
+        //
+    }
 }
