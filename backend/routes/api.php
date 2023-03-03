@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,4 +27,13 @@ Route::middleware('auth:api')->group(function () {
         'logout',
         [AuthController::class, 'logout']
     );
+    Route::prefix('products')->group(function () {
+        Route::get('/', [ProductController::class, 'index']);
+        Route::post('/', [ProductController::class, 'store']);
+        Route::get('/{id}', [ProductController::class, 'show']);
+        Route::put('/{id}', [ProductController::class, 'update']);
+        Route::delete('/{id}', [ProductController::class, 'destroy']);
+        Route::patch('/{id}/activate', [ProductController::class, 'activate']);
+        Route::patch('/{id}/deactivate', [ProductController::class, 'deactivate']);
+    });
 });
