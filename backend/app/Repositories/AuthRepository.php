@@ -9,47 +9,31 @@ class AuthRepository
 {
     public function create($input)
     {
-        try {
-            $user = User::create($input);
+        $user = User::create($input);
 
-            return $user;
-        } catch (\Throwable $th) {
-            throw $th;
-        }
+        return $user;
     }
 
     public function createToken($user)
     {
-        try {
-            $token = $user->createToken('product-module')->accessToken;
+        $token = $user->createToken('product-module')->accessToken;
 
-            return $token;
-        } catch (\Throwable $th) {
-            throw $th;
-        }
+        return $token;
     }
 
     public function attempt($input)
     {
-        try {
-            if (Auth::attempt($input)) {
-                $user = Auth::user();
+        if (Auth::attempt($input)) {
+            $user = Auth::user();
 
-                return $user;
-            }
-
-            return null;
-        } catch (\Throwable $th) {
-            throw $th;
+            return $user;
         }
+
+        return null;
     }
 
     public function revokeAuthUserToken()
     {
-        try {
-            Auth::user()->token()->revoke();
-        } catch (\Throwable $th) {
-            throw $th;
-        }
+        Auth::user()->token()->revoke();
     }
 }
