@@ -22,4 +22,9 @@ class Product extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function loggings()
+    {
+        return $this->hasMany(Logging::class, 'user_id');
+    }
 }
