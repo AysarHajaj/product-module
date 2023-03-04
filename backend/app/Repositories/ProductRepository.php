@@ -54,4 +54,14 @@ class ProductRepository
 
         return $product;
     }
+
+    public function update($product, $input)
+    {
+        $product->update($input);
+    }
+
+    public function findOrFail($id)
+    {
+        return Product::findOrFail($id);
+    }
 }
