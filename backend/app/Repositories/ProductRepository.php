@@ -89,4 +89,39 @@ class ProductRepository
     {
         $product->update(['deactivated_at' => now()]);
     }
+
+    public function getFiltered($text)
+    {
+        $products = Product::select(
+            'products.id',
+            'products.name',
+            'products.price',
+            'products.type',
+            'products.user_id',
+            'products.deactivated_at',
+            'products.created_at',
+        )->with([
+            'user' => function ($q) {
+                $q->select(
+                    'users.id',
+                    'users.name'
+                );
+            }
+        ])->where(
+            'products.name',
+            'LIKE',
+            "%{$text}%"
+        )->orWhereHas(
+            'user',
+            function ($q) use ($text) {
+                $q->where(
+                    'users.name',
+                    'LIKE',
+                    "%{$text}%"
+                );
+            }
+        )->get();
+
+        return $products;
+    }
 }
