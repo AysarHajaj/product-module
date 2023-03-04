@@ -36,4 +36,9 @@ class AuthRepository
     {
         Auth::user()->token()->revoke();
     }
+
+    public function authUser()
+    {
+        return Auth::user();
+    }
 }
