@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Formatters\AuthFormatter;
 use App\Formatters\ProductFormatter;
+use App\Notifications\NewProductAdded;
 use App\Repositories\AuthRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProductService extends Service
 {
@@ -52,8 +54,10 @@ class ProductService extends Service
         try {
             $user = $this->authRepository->authUser();
             $input = $this->productFormatter->prepareInputData($input, $user);
-            $this->productRepository->create($input);
+            $product = $this->productRepository->create($input);
             $result = $this->productFormatter->successResponseData(true);
+
+            $user->notify(new NewProductAdded($product->id));
 
             DB::commit();
             return $this->getResponse($result, 200);
