@@ -1,6 +1,6 @@
 # DiSultano
 
-This is a simple product module that shows follows a challenge requirements.
+This is a simple product module that follows a challenge requirements.
 
 <br/>
 
@@ -33,11 +33,7 @@ $ cp .env.example .env
 $ composer install
 ```
 
-- Create Database called &nbsp;
-
-```
-product-module-db
-```
+- Create Database called &nbsp; product-module-db
 
 ```
 $ php artisan migrate
