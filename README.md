@@ -33,13 +33,13 @@ $ cp .env.example .env
 $ composer install
 ```
 
-- Create Database called &nbsp; product-module-db
+- Create Database called &nbsp; "product-module-db"
 
 ```
 $ php artisan migrate
 $ php artisan passport:install
 $ php artisan db:seed
-$ php artisan service
+$ php artisan serve
 ```
 
 <br />
