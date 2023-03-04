@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Formatters\AuthFormatter;
 use App\Formatters\ProductFormatter;
 use App\Repositories\AuthRepository;
 use App\Repositories\ProductRepository;
@@ -12,15 +13,18 @@ class ProductService extends Service
     private $productRepository;
     private $productFormatter;
     private $authRepository;
+    private $authFormatter;
 
     public function __construct(
         ProductRepository $productRepository,
         ProductFormatter $productFormatter,
-        AuthRepository $authRepository
+        AuthRepository $authRepository,
+        AuthFormatter $authFormatter
     ) {
         $this->productRepository = $productRepository;
         $this->productFormatter = $productFormatter;
         $this->authRepository = $authRepository;
+        $this->authFormatter = $authFormatter;
     }
 
     public function getAll()
@@ -164,6 +168,26 @@ class ProductService extends Service
             $products = $this->productRepository->getFiltered($text);
             $formattedProducts = $this->productFormatter->formatProducts($products);
             $result = $this->productFormatter->successResponseData($formattedProducts);
+
+            DB::commit();
+            return $this->getResponse($result, 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->getResponse(
+                $this->productFormatter->errorResponseData($th->getMessage()),
+                500
+            );
+        }
+    }
+
+    public function getProductUser($id)
+    {
+        DB::beginTransaction();
+        try {
+            $product = $this->productRepository->findOrFail($id);
+            $user = $this->authRepository->findOrFail($product->user_id);
+            $user = $this->authFormatter->formatUser($user);
+            $result = $this->productFormatter->successResponseData($user);
 
             DB::commit();
             return $this->getResponse($result, 200);
