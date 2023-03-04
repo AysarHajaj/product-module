@@ -79,4 +79,14 @@ class ProductRepository
     {
         $product->update(['deactivated_at' => null]);
     }
+
+    public function findActiveOrFail($id)
+    {
+        return Product::whereNull('deactivated_at')->findOrFail($id);
+    }
+
+    public function deactivate($product)
+    {
+        $product->update(['deactivated_at' => now()]);
+    }
 }
