@@ -61,7 +61,10 @@ class ProductService extends Service
             $result = $this->productFormatter->successResponseData(true);
 
             $this->loggingService->logAddProduct($input, $user, $product);
-            $user->notify(new NewProductAdded($product->id));
+            try {
+                $user->notify(new NewProductAdded($product->id));
+            } catch (\Throwable $th) {
+            }
 
             DB::commit();
             return $this->getResponse($result, 200);
