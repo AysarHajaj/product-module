@@ -16,17 +16,20 @@ class ProductService extends Service
     private $productFormatter;
     private $authRepository;
     private $authFormatter;
+    private $loggingService;
 
     public function __construct(
         ProductRepository $productRepository,
         ProductFormatter $productFormatter,
         AuthRepository $authRepository,
-        AuthFormatter $authFormatter
+        AuthFormatter $authFormatter,
+        LoggingService $loggingService
     ) {
         $this->productRepository = $productRepository;
         $this->productFormatter = $productFormatter;
         $this->authRepository = $authRepository;
         $this->authFormatter = $authFormatter;
+        $this->loggingService = $loggingService;
     }
 
     public function getAll()
@@ -57,6 +60,7 @@ class ProductService extends Service
             $product = $this->productRepository->create($input);
             $result = $this->productFormatter->successResponseData(true);
 
+            $this->loggingService->logAddProduct($input, $user, $product);
             $user->notify(new NewProductAdded($product->id));
 
             DB::commit();
@@ -93,7 +97,9 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
+            $user = $this->authRepository->authUser();
             $product = $this->productRepository->findOrFail($id);
+            $this->loggingService->logUpdateProduct($input, $user, $product);
             $this->productRepository->update($product, $input);
             $result = $this->productFormatter->successResponseData(true);
 
@@ -112,9 +118,11 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
+            $user = $this->authRepository->authUser();
             $product = $this->productRepository->findOrFail($id);
             $this->productRepository->delete($product);
             $result = $this->productFormatter->successResponseData(true);
+            $this->loggingService->logDeleteProduct($user, $product);
 
             DB::commit();
             return $this->getResponse($result, 200);
@@ -131,9 +139,11 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
+            $user = $this->authRepository->authUser();
             $product = $this->productRepository->findDeactivatedOrFail($id);
             $this->productRepository->activate($product);
             $result = $this->productFormatter->successResponseData(true);
+            $this->loggingService->logActivateProduct($user, $product);
 
             DB::commit();
             return $this->getResponse($result, 200);
@@ -150,9 +160,11 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
+            $user = $this->authRepository->authUser();
             $product = $this->productRepository->findActiveOrFail($id);
             $this->productRepository->deactivate($product);
             $result = $this->productFormatter->successResponseData(true);
+            $this->loggingService->logDeactivateProduct($user, $product);
 
             DB::commit();
             return $this->getResponse($result, 200);
