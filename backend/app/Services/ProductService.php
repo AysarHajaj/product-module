@@ -99,4 +99,23 @@ class ProductService extends Service
             );
         }
     }
+
+    public function delete($id)
+    {
+        DB::beginTransaction();
+        try {
+            $product = $this->productRepository->findOrFail($id);
+            $this->productRepository->delete($product);
+            $result = $this->productFormatter->successResponseData(true);
+
+            DB::commit();
+            return $this->getResponse($result, 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->getResponse(
+                $this->productFormatter->errorResponseData($th->getMessage()),
+                500
+            );
+        }
+    }
 }
