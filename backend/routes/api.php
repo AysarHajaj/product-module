@@ -36,5 +36,6 @@ Route::middleware('auth:api')->group(function () {
         Route::delete('/{id}', [ProductController::class, 'destroy']);
         Route::patch('/{id}/activate', [ProductController::class, 'activate']);
         Route::patch('/{id}/deactivate', [ProductController::class, 'deactivate']);
+        Route::get('/{id}/user', [ProductController::class, 'getProductUser']);
     });
 });
