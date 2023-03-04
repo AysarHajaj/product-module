@@ -30,7 +30,7 @@ class ProductRepository
 
     public function create($input)
     {
-        Product::create($input);
+        return Product::create($input);
     }
 
     public function show($id)
