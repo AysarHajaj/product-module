@@ -70,7 +70,7 @@ class ProductController extends Controller
     /**
      * Activate the specified resource in storage.
      */
-    public function activate(string $id)
+    public function activate($id)
     {
         $response = $this->productService->activate($id);
 
@@ -80,8 +80,10 @@ class ProductController extends Controller
     /**
      * Deactivate the specified resource in storage.
      */
-    public function deactivate(string $id)
+    public function deactivate($id)
     {
-        //
+        $response = $this->productService->deactivate($id);
+
+        return $response;
     }
 }
