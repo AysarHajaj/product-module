@@ -61,4 +61,23 @@ class ProductService extends Service
             );
         }
     }
+
+    public function show($id)
+    {
+        DB::beginTransaction();
+        try {
+            $product = $this->productRepository->show($id);
+            $formattedProduct = $this->productFormatter->formatProduct($product);
+            $result = $this->productFormatter->successResponseData($formattedProduct);
+
+            DB::commit();
+            return $this->getResponse($result, 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->getResponse(
+                $this->productFormatter->errorResponseData($th->getMessage()),
+                500
+            );
+        }
+    }
 }

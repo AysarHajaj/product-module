@@ -32,4 +32,26 @@ class ProductRepository
     {
         Product::create($input);
     }
+
+    public function show($id)
+    {
+        $product = Product::select(
+            'products.id',
+            'products.name',
+            'products.price',
+            'products.type',
+            'products.user_id',
+            'products.deactivated_at',
+            'products.created_at',
+        )->with([
+            'user' => function ($q) {
+                $q->select(
+                    'users.id',
+                    'users.name'
+                );
+            }
+        ])->findOrFail($id);
+
+        return $product;
+    }
 }
