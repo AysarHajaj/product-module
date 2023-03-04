@@ -47,4 +47,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Product::class, 'user_id');
     }
+
+    public function loggings()
+    {
+        return $this->hasMany(Logging::class, 'user_id');
+    }
 }
