@@ -72,7 +72,9 @@ class ProductController extends Controller
      */
     public function activate(string $id)
     {
-        //
+        $response = $this->productService->activate($id);
+
+        return $response;
     }
 
     /**
