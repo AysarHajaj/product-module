@@ -18,4 +18,23 @@ class ProductService extends Service
         $this->productRepository = $productRepository;
         $this->productFormatter = $productFormatter;
     }
+
+    public function getAll()
+    {
+        DB::beginTransaction();
+        try {
+            $products = $this->productRepository->all();
+            $formattedProducts = $this->productFormatter->formatProducts($products);
+            $result = $this->productFormatter->successResponseData($formattedProducts);
+
+            DB::commit();
+            return $this->getResponse($result, 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->getResponse(
+                $this->productFormatter->errorResponseData($th->getMessage()),
+                500
+            );
+        }
+    }
 }
