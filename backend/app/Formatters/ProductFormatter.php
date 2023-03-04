@@ -23,9 +23,9 @@ class ProductFormatter extends Formatter
             $product['type'] = ProductTypes::ALL[$product['type']]['name'];
         }
         if (isset($product->deactivated_at)) {
-            $product['status'] = Statuses::INACTIVE;
+            $product['status'] = Statuses::ALL[Statuses::INACTIVE]['name'];
         } else {
-            $product['status'] = Statuses::ACTIVE;
+            $product['status'] = Statuses::ALL[Statuses::ACTIVE]['name'];
         }
         if (isset($product->user->name)) {
             $product['user_name'] = $product->user->name;
