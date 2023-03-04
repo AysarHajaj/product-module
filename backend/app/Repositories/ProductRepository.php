@@ -27,4 +27,9 @@ class ProductRepository
 
         return $products;
     }
+
+    public function create($input)
+    {
+        Product::create($input);
+    }
 }
