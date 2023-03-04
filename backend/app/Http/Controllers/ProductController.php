@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FilterRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
@@ -83,6 +84,17 @@ class ProductController extends Controller
     public function deactivate($id)
     {
         $response = $this->productService->deactivate($id);
+
+        return $response;
+    }
+
+    /**
+     * Display a filtered listing of the resource.
+     */
+    public function filter(FilterRequest $request)
+    {
+        $text = $request->input('q');
+        $response = $this->productService->getFiltered($text);
 
         return $response;
     }
