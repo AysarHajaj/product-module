@@ -98,4 +98,11 @@ class ProductController extends Controller
 
         return $response;
     }
+
+    public function getProductUser($id)
+    {
+        $response = $this->productService->getProductUser($id);
+
+        return $response;
+    }
 }
