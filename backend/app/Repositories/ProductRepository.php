@@ -69,4 +69,14 @@ class ProductRepository
     {
         $product->delete();
     }
+
+    public function findDeactivatedOrFail($id)
+    {
+        return Product::whereNotNull('deactivated_at')->findOrFail($id);
+    }
+
+    public function activate($product)
+    {
+        $product->update(['deactivated_at' => null]);
+    }
 }
