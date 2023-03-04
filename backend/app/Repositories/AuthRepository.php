@@ -41,4 +41,9 @@ class AuthRepository
     {
         return Auth::user();
     }
+
+    public function findOrFail($id)
+    {
+        return User::findOrFail($id);
+    }
 }
