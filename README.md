@@ -1,10 +1,10 @@
-# DiSultano
+# Product Module
 
 This is a simple product module that follows a challenge requirements.
 
 <br/>
 
-## Product Features
+##Features
 
 This is a Laravel App that is build to work as apis only.
 
@@ -22,10 +22,6 @@ This is a Laravel App that is build to work as apis only.
 ```
 $ git clone https://github.com/AysarHajaj/product-module.git
 ```
-
-## Product-module backend
-
-To run the app:
 
 ```
 $ cd backend
