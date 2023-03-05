@@ -42,4 +42,8 @@ $ php artisan db:seed
 $ php artisan serve
 ```
 
+## API Documentation link:
+
+<a href="https://documenter.getpostman.com/view/13163212/2s93JnUmbn">Api Documentation</a>
+
 <br />
