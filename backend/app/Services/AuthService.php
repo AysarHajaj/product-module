@@ -3,19 +3,17 @@
 namespace App\Services;
 
 use App\Formatters\AuthFormatter;
-use App\Repositories\AuthRepository;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AuthService extends Service
 {
-    private $authRepository;
     private $authFormatter;
 
     public function __construct(
-        AuthRepository $authRepository,
         AuthFormatter $authFormatter
     ) {
-        $this->authRepository = $authRepository;
         $this->authFormatter = $authFormatter;
     }
 
@@ -24,8 +22,8 @@ class AuthService extends Service
         DB::beginTransaction();
         try {
             $input['password'] = bcrypt($input['password']);
-            $user = $this->authRepository->create($input);
-            $token = $this->authRepository->createToken($user);
+            $user = User::create($input);
+            $token = $user->createToken('product-module')->accessToken;
             $user = $this->authFormatter->formatUser($user);
 
             $result = $this->authFormatter->prepareSuccessResponse();
@@ -56,9 +54,12 @@ class AuthService extends Service
     {
         DB::beginTransaction();
         try {
-            $user = $this->authRepository->attempt($input);
+            $user = null;
+            if (Auth::attempt($input)) {
+                $user = Auth::user();
+            }
             if ($user) {
-                $token = $this->authRepository->createToken($user);
+                $token = $user->createToken('product-module')->accessToken;
                 $user = $this->authFormatter->formatUser($user);
 
                 $result = $this->authFormatter->prepareSuccessResponse();
@@ -97,7 +98,7 @@ class AuthService extends Service
     {
         DB::beginTransaction();
         try {
-            $this->authRepository->revokeAuthUserToken();
+            Auth::user()->token()->revoke();
             $result = $this->authFormatter->successResponseData(true);
 
             DB::commit();

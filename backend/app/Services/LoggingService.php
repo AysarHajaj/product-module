@@ -3,26 +3,17 @@
 namespace App\Services;
 
 use App\Constants\Actions;
-use App\Formatters\AuthFormatter;
 use App\Formatters\LoggingFormatter;
-use App\Formatters\ProductFormatter;
-use App\Notifications\NewProductAdded;
-use App\Repositories\AuthRepository;
-use App\Repositories\LoggingRepository;
-use App\Repositories\ProductRepository;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Models\Logging;
+use App\Models\LoggingField;
 
 class LoggingService extends Service
 {
-    private $loggingRepository;
     private $loggingFormatter;
 
     public function __construct(
-        LoggingRepository $loggingRepository,
         LoggingFormatter $loggingFormatter,
     ) {
-        $this->loggingRepository = $loggingRepository;
         $this->loggingFormatter = $loggingFormatter;
     }
 
@@ -33,13 +24,13 @@ class LoggingService extends Service
             $product,
             $user
         );
-        $logging = $this->loggingRepository->create($loggingData);
+        $logging = Logging::create($loggingData);
 
         $loggingFieldsData = $this->loggingFormatter->prepareAddLoggingFields(
             $logging,
             $input
         );
-        $this->loggingRepository->insertLoggingFields($loggingFieldsData);
+        LoggingField::insert($loggingFieldsData);
     }
 
     public function logUpdateProduct($input, $user, $product)
@@ -49,14 +40,14 @@ class LoggingService extends Service
             $product,
             $user
         );
-        $logging = $this->loggingRepository->create($loggingData);
+        $logging = Logging::create($loggingData);
 
         $loggingFieldsData = $this->loggingFormatter->prepareUpdateLoggingFields(
             $logging,
             $input,
             $product
         );
-        $this->loggingRepository->insertLoggingFields($loggingFieldsData);
+        LoggingField::insert($loggingFieldsData);
     }
 
     public function logDeleteProduct($user, $product)
@@ -66,7 +57,7 @@ class LoggingService extends Service
             $product,
             $user
         );
-        $this->loggingRepository->create($loggingData);
+        Logging::create($loggingData);
     }
 
     public function logActivateProduct($user, $product)
@@ -76,7 +67,7 @@ class LoggingService extends Service
             $product,
             $user
         );
-        $this->loggingRepository->create($loggingData);
+        Logging::create($loggingData);
     }
 
     public function logDeactivateProduct($user, $product)
@@ -86,6 +77,6 @@ class LoggingService extends Service
             $product,
             $user
         );
-        $this->loggingRepository->create($loggingData);
+        Logging::create($loggingData);
     }
 }

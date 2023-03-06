@@ -4,30 +4,24 @@ namespace App\Services;
 
 use App\Formatters\AuthFormatter;
 use App\Formatters\ProductFormatter;
+use App\Models\Product;
+use App\Models\User;
 use App\Notifications\NewProductAdded;
-use App\Repositories\AuthRepository;
-use App\Repositories\ProductRepository;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ProductService extends Service
 {
-    private $productRepository;
     private $productFormatter;
-    private $authRepository;
     private $authFormatter;
     private $loggingService;
 
     public function __construct(
-        ProductRepository $productRepository,
         ProductFormatter $productFormatter,
-        AuthRepository $authRepository,
         AuthFormatter $authFormatter,
         LoggingService $loggingService
     ) {
-        $this->productRepository = $productRepository;
         $this->productFormatter = $productFormatter;
-        $this->authRepository = $authRepository;
         $this->authFormatter = $authFormatter;
         $this->loggingService = $loggingService;
     }
@@ -36,7 +30,23 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
-            $products = $this->productRepository->all();
+            $products = Product::select(
+                'products.id',
+                'products.name',
+                'products.price',
+                'products.type',
+                'products.user_id',
+                'products.deactivated_at',
+                'products.created_at',
+            )->with([
+                'user' => function ($q) {
+                    $q->select(
+                        'users.id',
+                        'users.name'
+                    );
+                }
+            ])->get();
+
             $formattedProducts = $this->productFormatter->formatProducts($products);
             $result = $this->productFormatter->successResponseData($formattedProducts);
 
@@ -55,9 +65,9 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
-            $user = $this->authRepository->authUser();
+            $user = Auth::user();
             $input = $this->productFormatter->prepareInputData($input, $user);
-            $product = $this->productRepository->create($input);
+            $product = Product::create($input);
             $result = $this->productFormatter->successResponseData(true);
 
             $this->loggingService->logAddProduct($input, $user, $product);
@@ -81,7 +91,23 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
-            $product = $this->productRepository->show($id);
+            $product = Product::select(
+                'products.id',
+                'products.name',
+                'products.price',
+                'products.type',
+                'products.user_id',
+                'products.deactivated_at',
+                'products.created_at',
+            )->with([
+                'user' => function ($q) {
+                    $q->select(
+                        'users.id',
+                        'users.name'
+                    );
+                }
+            ])->findOrFail($id);
+
             $formattedProduct = $this->productFormatter->formatProduct($product);
             $result = $this->productFormatter->successResponseData($formattedProduct);
 
@@ -100,10 +126,10 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
-            $user = $this->authRepository->authUser();
-            $product = $this->productRepository->findOrFail($id);
+            $user = Auth::user();
+            $product = Product::findOrFail($id);
             $this->loggingService->logUpdateProduct($input, $user, $product);
-            $this->productRepository->update($product, $input);
+            $product->update($input);
             $result = $this->productFormatter->successResponseData(true);
 
             DB::commit();
@@ -121,9 +147,9 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
-            $user = $this->authRepository->authUser();
-            $product = $this->productRepository->findOrFail($id);
-            $this->productRepository->delete($product);
+            $user = Auth::user();
+            $product = Product::findOrFail($id);
+            $product->delete();
             $result = $this->productFormatter->successResponseData(true);
             $this->loggingService->logDeleteProduct($user, $product);
 
@@ -142,9 +168,9 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
-            $user = $this->authRepository->authUser();
-            $product = $this->productRepository->findDeactivatedOrFail($id);
-            $this->productRepository->activate($product);
+            $user = Auth::user();
+            $product = Product::whereNotNull('deactivated_at')->findOrFail($id);
+            $product->update(['deactivated_at' => null]);
             $result = $this->productFormatter->successResponseData(true);
             $this->loggingService->logActivateProduct($user, $product);
 
@@ -163,9 +189,9 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
-            $user = $this->authRepository->authUser();
-            $product = $this->productRepository->findActiveOrFail($id);
-            $this->productRepository->deactivate($product);
+            $user = Auth::user();
+            $product = Product::whereNull('deactivated_at')->findOrFail($id);
+            $product->update(['deactivated_at' => now()]);
             $result = $this->productFormatter->successResponseData(true);
             $this->loggingService->logDeactivateProduct($user, $product);
 
@@ -184,7 +210,35 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
-            $products = $this->productRepository->getFiltered($text);
+            $products = Product::select(
+                'products.id',
+                'products.name',
+                'products.price',
+                'products.type',
+                'products.user_id',
+                'products.deactivated_at',
+                'products.created_at',
+            )->with([
+                'user' => function ($q) {
+                    $q->select(
+                        'users.id',
+                        'users.name'
+                    );
+                }
+            ])->where(
+                'products.name',
+                'LIKE',
+                "%{$text}%"
+            )->orWhereHas(
+                'user',
+                function ($q) use ($text) {
+                    $q->where(
+                        'users.name',
+                        'LIKE',
+                        "%{$text}%"
+                    );
+                }
+            )->get();
             $formattedProducts = $this->productFormatter->formatProducts($products);
             $result = $this->productFormatter->successResponseData($formattedProducts);
 
@@ -203,8 +257,8 @@ class ProductService extends Service
     {
         DB::beginTransaction();
         try {
-            $product = $this->productRepository->findOrFail($id);
-            $user = $this->authRepository->findOrFail($product->user_id);
+            $product = Product::findOrFail($id);
+            $user = User::findOrFail($product->user_id);
             $user = $this->authFormatter->formatUser($user);
             $result = $this->productFormatter->successResponseData($user);
 
